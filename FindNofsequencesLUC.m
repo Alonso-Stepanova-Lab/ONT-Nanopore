@@ -1,0 +1,68 @@
+ fastafile=[];
+clv='AGAAUACAAGCUUAUGCAUGCGGCCGCAUCUAGAGGGCCCGGAUCCAAAUGGAAGACGCCAAAAACAUAAAGAAAGGCCCGGCGCCAUUCUAUCCUCUAGAGGAUGGAACCGCUGGAGAGCAACUGCAUAAGGCUAUGAAGAGAUACGCCCUGGUUCCUGGAACAAUUGCUUUUACAGAUGCACAUAUCGAGGUGAACAUCACGUACGCGGAAUACUUCGAAAUGUCCGUUCGGUUGGCAGAAGCUAUGAAACGAUAUGGGCUGAAUACAAAUCACAGAAUCGUCGUAUGCAGUGAAAACUCUCUUCAAUUCUUUAUGCCGGUGUUGGGCGCGUUAUUUAUCGGAGUUGCAGUUGCGCCCGCGAACGACAUUUAUAAUGAACGUGAAUUGCUCAACAGUAUGAACAUUUCGCAGCCUACCGUAGUGUUUGUUUCCAAAAAGGGGUUGCAAAAAAUUUUGAACGUGCAAAAAAAAUUACCAAUAAUCCAGAAAAUUAUUAUCAUGGAUUCUAAAACGGAUUACCAGGGAUUUCAGUCGAUGUACACGUUCGUCACAUCUCAUCUACCUCCCGGUUUUAAUGAAUACGAUUUUGUACCAGAGUCCUUUGAUCGUGACAAAACAAUUGCACUGAUAAUGAAUUCCUCUGGAUCUACUGGGUUACCUAAGGGUGUGGCCCUUCCGCAUAGAACUGCCUGCGUCAGAUUCUCGCAUGCCAGAGAUCCUAUUUUUGGCAAUCAAAUCAUUCCGGAUACUGCGAUUUUAAGUGUUGUUCCAUUCCAUCACGGUUUUGGAAUGUUUACUACACUCGGAUAUUUGAUAUGUGGAUUUCGAGUCGUCUUAAUGUAUAGAUUUGAAGAAGAGCUGUUUUUACGAUCCCUUCAGGAUUACAAAAUUCAAAGUGCGUUGCUAGUACCAACCCUAUUUUCAUUCUUCGCCAAAAGCACUCUGAUUGACAAAUACGAUUUAUCUAAUUUACACGAAAUUGCUUCUGGGGGCGCACCUCUUUCGAAAGAAGUCGGGGAAGCGGUUGCAAAACGCUUCCAUCUUCCAGGGAUACGACAAGGAUAUGGGCUCACUGAGACUACAUCAGCUAUUCUGAUUACACCCGAGGGGGAUGAUAAACCGGGCGCGGUCGGUAAAGUUGUUCCAUUUUUUGAAGCGAAGGUUGUGGAUCUGGAUACCGGGAAAACGCUGGGCGUUAAUCAGAGAGGCGAAUUAUGUGUCAGAGGACCUAUGAUUAUGUCCGGUUAUGUAAACAAUCCGGAAGCGACCAACGCCUUGAUUGACAAGGAUGGAUGGCUACAUUCUGGAGACAUAGCUUACUGGGACGAAGACGAACACUUCUUCAUAGUUGACCGCUUGAAGUCUUUAAUUAAAUACAAAGGAUAUCAGGUGGCCCCCGCUGAAUUGGAAUCGAUAUUGUUACAACACCCCAACAUCUUCGACGCGGGCGUGGCAGGUCUUCCCGACGAUGACGCCGGUGAACUUCCCGCCGCCGUUGUUGUUUUGGAGCACGGAAAGACGAUGACGGAAAAAGAGAUCGUGGAUUACGUCGCCAGUCAAGUAACAACCGCGAAAAAGUUGCGCGGAGGAGUUGUGUUUGUGGACGAAGUACCGAAAGGUCUUACCGGAAAACUCGACGCAAGAAAAAUCAGAGAGAUCCUCAUAAAGGCCAAGAAGGGCGGAAAGUCCAAAUU';
+tam=numel(clv);
+% clv=convertCharsToStrings(clv);
+present=[];
+
+
+    
+
+[filename, pathname] = uigetfile({'*.fast5'},'File Selector');
+
+
+Files=dir(pathname); %all files in a directory
+N={Files.name};
+contador=0;
+counter=0;
+for i = 1:length(Files)
+    W = ~isempty(strfind(N(i),'.fast5'));
+    contador=contador+1;
+%     if contador==102
+%         pause();
+%     end
+    
+        if W
+           file=strcat(pathname,N(i));
+           text=textread(file{1},'%s','delimiter','\n');
+           for pp=1:(tam-15)
+              clv1=clv(pp:pp+15);        
+              c1=strfind(text,clv1);
+              f1=find(~cellfun(@isempty,c1));
+              
+              if ~isempty(f1)
+                  counter=counter+1;
+              end
+              if counter>10
+              f1=find(~cellfun(@isempty,c1));
+              fastaname=strcat('>',N(i));
+              seq=cat(1,fastaname,text{f1});
+              fastafile=cat(1,fastafile,seq);
+              text{f1};
+              f1=[];
+              counter=0;
+%               newpath=strcat(pathname1,N(i));
+              file4=file{1};
+              present=cat(1,present,contador);
+              copyfile(file4);
+%               file1=char(file{1});
+%               c=strsplit(file1,'_');
+%               read=char(c{end-3});
+%               atributo=strcat('/Raw/Reads/Read_',read,'/Signal');
+%               data=h5read(file1,atributo);
+%               figure;
+%               plot(data);
+%               ylim([300 1500]);
+
+  
+              
+              
+              
+              
+              break
+              end
+           end
+        end
+end
+
+destino=strcat(pathname,'Luciferase.txt');
+writetable( cell2table(fastafile), destino, 'writevariablenames', false, 'quotestrings', true);
